@@ -1,0 +1,77 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+	Register
+{% endblock %}
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ asset('recursos/css/custom.css') }}">
+{% endblock %}
+
+
+{% block body %}
+	{% for flash_error in app.flashes('verify_email_error') %}
+		<div class="alert alert-danger" role="alert">{{ flash_error }}</div>
+	{% endfor %}
+
+	<form method="post">
+    {{ form_start(registrationForm) }}
+    {{ form_errors(registrationForm) }}
+
+    <div class="container">
+        <div class="row align-items-center">
+            
+            <!-- Logo principal -->
+            <div class="col-12 col-lg-6 text-center mb-4 mb-lg-0">
+                <div class="logo">
+                    <img src="{{ asset('recursos/img/logo_f.svg') }}" 
+                         alt="Imagen de fondo" 
+                         class="img-fluid">
+                </div>
+            </div>
+
+            <!-- Formulario -->
+            <div class="col-12 col-lg-6">
+                <div class="wrapper_crear_cuenta p-4 border rounded shadow-sm ">
+                    
+
+                    <!-- Título -->
+                    <div class="titulo text-center">
+                        <h1 class=" fs-3">Crear una Cuenta</h1>
+                    </div>
+
+                    <!-- Mensaje -->
+                    <div class="mensaje2 text-center">
+                        <p>Por favor, completa la información para crear tu cuenta.</p>
+                    </div>
+
+                    <!-- Campos -->
+                    <div class="input-box mb-2">
+                        {{ form_row(registrationForm.nombre) }}
+                    </div>
+                    <div class="input-box mb-2">
+                        {{ form_row(registrationForm.apellido_paterno) }}
+                    </div>
+                    <div class="input-box mb-2">
+                        {{ form_row(registrationForm.apellido_materno) }}
+                    </div>
+                    <div class="input-box mb-2">
+                        {{ form_row(registrationForm.email) }}
+                    </div>
+                    <div class="input-box mb-2">
+                        {{ form_row(registrationForm.plainPassword) }}
+                    </div>
+
+                    <!-- Botón -->
+                    <div class="boton_crear d-grid mt-2">
+                        <button type="submit" class="btn btn-lg btn-primary">Registrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{ form_end(registrationForm) }}
+</form>
+
+
+{% endblock %}

@@ -1,0 +1,184 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard
+{% endblock %}
+
+{% block contenido %}
+	<div class="container my-5">
+		<div class="row justify-content-center">
+			<div
+				class="col-12 col-lg-10">
+
+				<!-- Gráfico Compras vs Ventas -->
+				<div class="card shadow-lg border-0 mb-4">
+					<div class="card-header bg-secondary text-white">
+						<h3 class="mb-0">Compras vs Ventas por Mes</h3>
+					</div>
+					<div class="card-body bg-light">
+						<canvas id="ventasComprasChart" height="100"></canvas>
+					</div>
+				</div>
+
+				<!-- Gráfico Productos más vendidos -->
+				<div class="card shadow-lg border-0">
+					<div class="card-header bg-secondary text-white">
+						<h3 class="mb-0">Productos más vendidos y stock</h3>
+					</div>
+					<div class="card-body bg-light">
+						<canvas id="productosChart" height="100"></canvas>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+		<div class="row">
+            <div class="col-xl-6 card shadow-lg border-0 mt-4">
+                <div class="card-header bg-secondary text-white">
+                    <h3 class="mb-0">Resumen Financiero</h3>
+                </div>
+                <div class="card-body bg-light">
+                    <table class="table table-striped table-bordered text-center">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Ventas</th>
+                                <th>Compras</th>
+                                <th>Ganancia Neta</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td id="ventasTotal"></td>
+                                <td id="comprasTotal"></td>
+                                <td id="gananciaTotal" class="fw-bold"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="col-xl-6 card shadow-lg border-0 mt-4">
+                <div class="card-header bg-secondary text-white">
+                    <h3 class="mb-0">Productos con Bajo Stock</h3>
+                </div>
+                <div class="card-body bg-light">
+                    <table class="table table-striped table-bordered text-center">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Producto</th>
+                                <th>Stock</th>
+                            </tr>
+                        </thead>
+                        <tbody
+                            id="tablaBajoStock"><!-- Se llena dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+	</div>
+
+	<!-- Chart.js -->
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function () { // Primer gráfico: Compras vs Ventas
+fetch('/api/dashboard-data').then(r => r.json()).then(data => {
+const ctx = document.getElementById('ventasComprasChart').getContext('2d');
+const meses = data.compras.map(item => item.mes);
+const compras = data.compras.map(item => item.total);
+const ventas = data.ventas.map(item => item.total);
+
+new Chart(ctx, {
+type: 'bar',
+data: {
+labels: meses,
+datasets: [
+{
+label: 'Compras',
+data: compras,
+backgroundColor: 'rgba(120,120,120,0.7)'
+}, {
+label: 'Ventas',
+data: ventas,
+backgroundColor: 'rgba(0,200,100,0.7)'
+}
+]
+},
+options: {
+responsive: true
+}
+});
+});
+
+// Segundo gráfico: Productos más vendidos
+fetch('/api/productos-mas-vendidos').then(r => r.json()).then(data => {
+const ctx2 = document.getElementById('productosChart').getContext('2d');
+const productos = data.map(item => item.producto);
+const vendidos = data.map(item => item.vendidos);
+const stock = data.map(item => item.stock);
+
+new Chart(ctx2, {
+type: 'bar',
+data: {
+labels: productos,
+datasets: [
+{
+label: 'Vendidos',
+data: vendidos,
+backgroundColor: 'rgba(0,200,100,0.7)'
+}, {
+label: 'Stock',
+data: stock,
+backgroundColor: 'rgba(120,120,120,0.7)'
+}
+]
+},
+options: {
+responsive: true,
+plugins: {
+legend: {
+position: 'top'
+},
+title: {
+display: true,
+text: 'Top productos y stock actual'
+}
+}
+}
+});
+});
+});
+document.addEventListener('DOMContentLoaded', function () {
+fetch('/api/ganancia-neta').then(r => r.json()).then(data => {
+document.getElementById('ventasTotal').textContent = 'Bs ' + data.ventas.toFixed(2);
+document.getElementById('comprasTotal').textContent = 'Bs ' + data.compras.toFixed(2);
+document.getElementById('gananciaTotal').textContent = 'Bs ' + data.ganancia.toFixed(2);
+
+// Colorear ganancia según positiva o negativa
+const gananciaCell = document.getElementById('gananciaTotal');
+gananciaCell.classList.add(data.ganancia >= 0 ? 'text-success' : 'text-danger');
+});
+});
+// Llenar tabla de productos con bajo stock
+document.addEventListener('DOMContentLoaded', function () {
+  fetch('/api/productos-bajo-stock')
+    .then(r => r.json())
+    .then(data => {
+      const tbody = document.getElementById('tablaBajoStock');
+      tbody.innerHTML = '';
+      data.forEach(p => {
+        const row = `<tr>
+          <td>${p.id}</td>
+          <td>${p.nombre}</td>
+          <td class="${p.stock <= 5 ? 'text-danger fw-bold' : 'text-warning'}">${p.stock}</td>
+        </tr>`;
+        tbody.innerHTML += row;
+      });
+    });
+});
+
+	</script>
+{% endblock %}

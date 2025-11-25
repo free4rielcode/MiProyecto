@@ -1,0 +1,46 @@
+{# filepath: templates/compra/listar.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block body %}
+	<h1>Lista de Compras</h1>
+	<table class="table">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Fecha</th>
+				<th>Total</th>
+				<th>Usuario</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for compra in compras %}
+				<tr>
+					<td>{{ compra.id }}</td>
+					<td>{{ compra.fecha|date('d/m/Y H:i') }}</td>
+					<td>{{ compra.total }}</td>
+					<td>{{ compra.usuario.email }}</td>
+					<td>
+						<ul>
+							{% for detalle in compra.detalleCompras %}
+								<li>
+									Producto:
+									{{ detalle.categoria.nombre }},
+									                                    Cantidad:
+									{{ detalle.cantidad }},
+									                                    Precio unitario:
+									{{ detalle.precioUnitario }},
+									                                    Subtotal:
+									{{ detalle.subtotal }}
+								</li>
+							{% endfor %}
+						</ul>
+					</td>
+				</tr>
+			{% else %}
+				<tr>
+					<td colspan="4">No hay compras registradas.</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+{% endblock %}

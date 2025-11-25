@@ -1,0 +1,327 @@
+{% extends 'base.html.twig' %}
+
+
+{% block title %}Registrar nueva compra
+{% endblock %}
+
+{% block contenido %}
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				<h1 class="">Registrar nueva compra</h1>
+
+				<div class="card shadow-sm">
+					<div
+						class="card-body">
+						{# flashes #}
+						{% for label, messages in app.flashes %}
+							{% for message in messages %}
+								<div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+									{{ message }}
+									<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+								</div>
+							{% endfor %}
+						{% endfor %}
+
+						{# Proveedor de la compra #}
+						<div class="mb-4">
+							<label for="proveedor" class="form-label">Proveedor</label>
+							<select id="proveedor" class="form-select shadow-sm" required>
+								<option value="">Seleccione un proveedor</option>
+								{% for prov in proveedores %}
+									<option value="{{ prov.id }}">{{ prov.nombre }}</option>
+								{% endfor %}
+							</select>
+						</div>
+
+						{# Formulario de creación de ítems #}
+						<form
+							id="productForm" class="mb-4">
+							
+							<div class="row g-3">
+								<div class="col-12 col-sm-6 col-md-3">
+									<label for="categoria" class="form-label">Categoría</label>
+									<select id="categoria" class="form-select shadow-sm" required>
+										<option value="">Seleccione una categoría</option>
+										{% for categoria in categorias %}
+											<option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+										{% endfor %}
+									</select>
+								</div>
+
+								<div class="col-12 col-sm-6 col-md-3">
+									<label for="producto" class="form-label">Producto</label>
+									<select id="producto" class="form-select shadow-sm" required disabled>
+										<option value="">Seleccione un producto</option>
+										<option value="nuevo">➕ Nuevo producto</option>
+									</select>
+								</div>
+
+								<!-- Campos para nuevo producto (ocultos por defecto) -->
+								<div class="row my-2">
+									<div class="col-12 col-sm-6 col-md-3 my-auto" id="nuevoProductoFields" style="display:none;">
+									<label for="productoNombre" class="form-label">Nombre del producto</label>
+									<input type="text" id="productoNombre" class="form-control shadow-sm">
+
+									<label for="productoDescripcion" class="form-label mt-2 my-auto">Descripción</label>
+									<input type="text" id="productoDescripcion" class="form-control shadow-sm">
+									</div>
+
+									<div class="col-12 col-sm-6 col-md-2 my-auto">
+										<label for="cantidad" class="form-label">Cantidad</label>
+										<input type="number" id="cantidad" class="form-control shadow-sm" min="1" required>
+									</div>
+
+									<div class="col-12 col-sm-6 col-md-2 my-auto">
+										<label for="precioUnitario" class="form-label">Precio unitario</label>
+										<input type="number" id="precioUnitario" class="form-control shadow-sm" min="0" step="0.01" required>
+									</div>
+
+									<div class="col-12 col-sm-6 col-md-2 d-flex align-items-end my-auto">
+										<button type="button" id="addProduct" class="btn btn-primary w-100">Agregar producto</button>
+									</div>
+								</div>
+							</div>
+
+						</form>
+
+
+						<!-- Carrito -->
+						<h4 class="mt-4">Productos en el carrito</h4>
+						<div class="table-responsive">
+							<table class="table table-striped table-sm align-middle" id="cartTable">
+								<thead class="table-dark">
+									<tr>
+										<th>Producto</th>
+										<th>Categoría</th>
+										<th>Cantidad</th>
+										<th>Precio</th>
+										<th>Subtotal</th>
+										<th>Acción</th>
+									</tr>
+								</thead>
+								<tbody></tbody>
+								<tfoot>
+									<tr>
+										<td colspan="4" class="text-end">
+											<strong>Total:</strong>
+										</td>
+										<td id="totalAmount">Bs 0.00</td>
+										<td></td>
+									</tr>
+								</tfoot>
+							</table>
+						</div>
+
+						<!-- Botones -->
+						<div class="row mt-4 g-3">
+							<div class="col-12 col-md-6">
+								<button id="savePurchase" class="btn btn-success w-100">Guardar compra</button>
+							</div>
+							<div class="col-12 col-md-6">
+								<a href="{{ path('app_compra') }}" class="btn btn-secondary w-100">Volver al listado</a>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+const proveedorSelect = document.getElementById('proveedor');
+const categoriaSelect = document.getElementById('categoria');
+const productoSelect = document.getElementById('producto');
+const nuevoProductoFields = document.getElementById('nuevoProductoFields');
+const productoNombreInput = document.getElementById('productoNombre');
+const productoDescripcionInput = document.getElementById('productoDescripcion');
+const cantidadInput = document.getElementById('cantidad');
+const precioInput = document.getElementById('precioUnitario');
+const addProductBtn = document.getElementById('addProduct');
+const cartTableBody = document.querySelector('#cartTable tbody');
+const totalAmount = document.getElementById('totalAmount');
+const savePurchaseBtn = document.getElementById('savePurchase');
+
+let cart = [];
+let total = 0;
+
+// Cargar productos por categoría
+categoriaSelect.addEventListener('change', function () {
+const categoriaId = this.value;
+productoSelect.innerHTML = '<option value="">Seleccione un producto</option><option value="nuevo">➕ Nuevo producto</option>';
+productoSelect.disabled = true;
+
+if (! categoriaId) 
+return;
+
+
+fetch('/productos-por-categoria/' + categoriaId).then(r => r.json()).then(data => {
+data.forEach(prod => {
+const option = document.createElement('option');
+option.value = prod.id;
+option.textContent = prod.nombre;
+option.dataset.precio = prod.precio_venta || 0;
+productoSelect.appendChild(option);
+});
+productoSelect.disabled = false;
+}).catch(err => console.error('Error al cargar productos:', err));
+});
+
+// Mostrar/ocultar campos de nuevo producto
+productoSelect.addEventListener('change', function () {
+if (this.value === 'nuevo') {
+nuevoProductoFields.style.display = 'block';
+precioInput.value = '';
+} else {
+nuevoProductoFields.style.display = 'none';
+const selectedOption = this.options[this.selectedIndex];
+const precioSugerido = selectedOption.dataset.precio || '';
+precioInput.value = precioSugerido;
+}
+});
+
+// Agregar producto al carrito
+addProductBtn.addEventListener('click', function () {
+const proveedorId = proveedorSelect.value;
+if (! proveedorId) {
+alert('Seleccione un proveedor');
+return;
+}
+
+const categoriaId = categoriaSelect.value;
+const categoriaNombre = categoriaSelect.options[categoriaSelect.selectedIndex] ?. text || '';
+const productoId = productoSelect.value;
+let productoNombre = '';
+let productoDescripcion = '';
+
+if (productoId === 'nuevo') {
+productoNombre = productoNombreInput.value.trim();
+productoDescripcion = productoDescripcionInput.value.trim();
+if (! productoNombre) {
+alert('Ingrese el nombre del nuevo producto');
+return;
+}
+} else {
+productoNombre = productoSelect.options[productoSelect.selectedIndex].text;
+}
+
+const cantidad = parseInt(cantidadInput.value);
+const precio = parseFloat(precioInput.value);
+
+if (! categoriaId || ! cantidad || cantidad <= 0 || Number.isNaN(precio) || precio <= 0) {
+alert('Complete todos los campos correctamente');
+return;
+}
+
+const subtotal = cantidad * precio;
+
+cart.push({
+producto_id: productoId !== 'nuevo' ? parseInt(productoId, 10) : null,
+productoNombre,
+productoDescripcion,
+categoria_id: parseInt(categoriaId, 10),
+categoria_nombre: categoriaNombre,
+cantidad,
+precio_unitario: precio,
+subtotal
+});
+
+updateCartTable();
+updateTotal();
+
+// limpiar
+productoSelect.innerHTML = '<option value="">Seleccione un producto</option><option value="nuevo">➕ Nuevo producto</option>';
+productoSelect.disabled = true;
+nuevoProductoFields.style.display = 'none';
+productoNombreInput.value = '';
+productoDescripcionInput.value = '';
+categoriaSelect.value = '';
+cantidadInput.value = '';
+precioInput.value = '';
+});
+
+// Actualizar tabla del carrito
+function updateCartTable() {
+cartTableBody.innerHTML = '';
+cart.forEach((item, index) => {
+const row = document.createElement('tr');
+row.innerHTML = `
+        <td>${
+item.productoNombre
+}</td>
+        <td>${
+item.categoria_nombre
+}</td>
+        <td>${
+item.cantidad
+}</td>
+        <td>Bs ${
+item.precio_unitario.toFixed(2)
+}</td>
+        <td>Bs ${
+item.subtotal.toFixed(2)
+}</td>
+        <td><button class="btn btn-danger btn-sm" onclick="removeFromCart(${index})">Eliminar</button></td>
+      `;
+cartTableBody.appendChild(row);
+});
+}
+
+// Actualizar total
+function updateTotal() {
+total = cart.reduce((sum, item) => sum + item.subtotal, 0);
+totalAmount.textContent = `Bs ${
+total.toFixed(2)
+}`;
+}
+
+// Eliminar producto del carrito
+window.removeFromCart = function (index) {
+cart.splice(index, 1);
+updateCartTable();
+updateTotal();
+};
+
+// Guardar compra
+savePurchaseBtn.addEventListener('click', function () {
+const proveedorId = proveedorSelect.value;
+if (! proveedorId) {
+alert('Seleccione un proveedor');
+return;
+}
+if (cart.length === 0) {
+alert('Agregue al menos un producto al carrito');
+return;
+}
+
+fetch('{{ path("compra_registrar") }}', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json'
+},
+body: JSON.stringify(
+{
+proveedor_id: parseInt(proveedorId, 10),
+productos: cart
+}
+)
+}).then(r => r.json()).then(data => {
+if (data.success) {
+window.location.href = `/compra/${
+data.compra_id
+}/factura`;
+} else {
+alert('Error: ' + (
+data.error || 'No se pudo registrar'
+));
+}
+}).catch(err => {
+console.error(err);
+alert('Error al registrar la compra');
+});
+});
+});
+	</script>
+{% endblock %}

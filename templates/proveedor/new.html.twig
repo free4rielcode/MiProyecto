@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nuevo Proveedor
+{% endblock %}
+{% block contenido %}
+
+	{% for flash_error in app.flashes('verify_email_error') %}
+		<div class="alert alert-danger" role="alert">{{ flash_error }}</div>
+	{% endfor %}
+
+	<form method="post">
+		{{ form_start(form) }}
+		{{ form_errors(form) }}
+
+		<div class="container">
+
+			<div class="row">
+
+
+				<div class="col-8 offset-2 mt-5">
+					<div class="wrapper_proveedor">
+
+
+						<div class="titulo">
+							<h1>Agregar Proveedor</h1>
+						</div>
+						
+						<div class="input-box">
+							{{ form_row(form.nombre) }}
+						</div>
+						<div class="input-box">
+							{{ form_row(form.direccion) }}
+						</div>
+						<div class="input-box">
+							{{ form_row(form.telefono) }}
+						</div>
+						<div class="input-box">
+							{{ form_row(form.email) }}
+						</div>
+
+
+						<div class="boton_crear">
+							<button class="btn btn-primary">Guardar</button>
+						</div>
+
+
+					</div>
+
+				</div>
+			</div>
+
+		</div>
+		{{ form_end(form) }}
+	</form>
+
+
+	<a href="{{ path('app_proveedor_index') }}" class="btn btn-primary m-1 text-light">Volver atrás</a>
+
+
+{% endblock %}

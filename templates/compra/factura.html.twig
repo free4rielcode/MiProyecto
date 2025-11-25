@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Factura de Compra{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-10">
+
+      <!-- Card único -->
+      <div class="card shadow-lg border-0">
+        <div class="card-header bg-secondary text-white">
+          <h3 class="mb-0">Factura de Compra #{{ compra.id }}</h3>
+        </div>
+
+        <div class="card-body bg-light">
+          <!-- Datos principales -->
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <p class="mb-1"><strong>Fecha:</strong> {{ compra.fecha|date('d/m/Y H:i') }}</p>
+              <p class="mb-1"><strong>Proveedor:</strong> {{ compra.proveedor.nombre }}</p>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-1"><strong>Usuario:</strong> {{ compra.usuario.email }}</p>
+              <p class="mb-1"><strong>Total:</strong> 
+                <span class="fw-bold text-success">Bs {{ total|number_format(2, '.', ',') }}</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Tabla de detalles -->
+          <div class="table-responsive mb-4">
+            <table class="table table-bordered table-hover align-middle mb-0">
+              <thead class="table-secondary">
+                <tr>
+                  <th>Producto</th>
+                  <th>Categoría</th>
+                  <th>Cantidad</th>
+                  <th>Precio Unitario</th>
+                  <th>Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for detalle in compra.detalleCompras %}
+                  <tr>
+                    <td>{{ detalle.producto.nombre }}</td>
+                    <td>{{ detalle.categoria.nombre }}</td>
+                    <td>{{ detalle.cantidad }}</td>
+                    <td>Bs {{ detalle.precioUnitario|number_format(2, '.', ',') }}</td>
+                    <td>Bs {{ detalle.subtotal|number_format(2, '.', ',') }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot class="table-light">
+                <tr>
+                  <th colspan="4" class="text-end">TOTAL</th>
+                  <th class="fw-bold text-success">Bs {{ total|number_format(2, '.', ',') }}</th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <!-- Botones -->
+          <div class="d-flex justify-content-between no-print">
+            <a href="{{ path('app_compra') }}" class="btn btn-outline-secondary">
+              <i class="bi bi-arrow-left"></i> Volver
+            </a>
+            <button class="btn btn-success" onclick="window.print()">
+              <i class="bi bi-printer"></i> Imprimir Factura
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

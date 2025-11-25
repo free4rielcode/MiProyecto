@@ -1,0 +1,5 @@
+- [ ] Add getMonthlySales method to VentaRepository.php
+- [ ] Add getMonthlyPurchases method to CompraRepository.php
+- [ ] Update IndexController.php to fetch monthly data and pass to view
+- [ ] Update templates/index/index.html.twig to include Chart.js and render graphs for sales and purchases
+- [ ] Add report generation functionality using knp_snappy for PDF report

@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nueva Categoría
+{% endblock %}
+
+{% block body %}
+	<div class="container mt-4">
+		<h1>Crear Nueva Categoría</h1>
+
+		{# Formulario completo y cerrado #}
+		{{ form_start(form) }}
+		{{ form_widget(form) }}
+		{# Renderiza todos los campos del form #}
+		<button type="submit" class="btn btn-primary">Guardar</button>
+		<a href="{{ path('app_producto_index') }}" class="btn btn-secondary">Volver a Lista</a>
+		{{ form_end(form) }}
+		{# ¡Cierre esencial! #}
+
+		
+
+		<h2>Categorías Creadas</h2>
+		<ul class="list-group mb-4">
+			{% for categoria in categorias %}
+				<li class="list-group-item">{{ categoria.nombre }}
+					-
+					{{ categoria.descripcion }}</li>
+			{% else %}
+				<li class="list-group-item">No hay categorías creadas.</li>
+			{% endfor %}
+		</ul>
+	</div>
+{% endblock %}

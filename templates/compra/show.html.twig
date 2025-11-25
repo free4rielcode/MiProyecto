@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block contenido %}
+    <h1>Detalle de Compra</h1>
+
+    <ul>
+        {% for detalle in compra.detalleCompras %}
+            <li>
+                Categoria: {{ detalle.categoria.nombre }}
+                <br>
+                Cantidad: {{ detalle.cantidad }}
+                <br>
+                Precio unitario: {{ detalle.precioUnitario }}
+            </li>
+        {% endfor %}
+    </ul>
+
+    <a href="{{ path('app_compra') }}">Volver a la lista de compras</a>
+{% endblock %}

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Welcome!{% endblock %}</title>
+        {% block stylesheets %}
+        <link rel="stylesheet" href="{{ asset('recursos/bootstrap/css/bootstrap.min.css') }}">
+		<link rel="stylesheet" href="{{ asset('recursos/font/bootstrap-icons/bootstrap-icons.css') }}">		<link rel="stylesheet" href="{{ asset('recursos/css/custom.css') }}">
+        
+        {% endblock %}
+
+        {% block javascripts %}
+        <script src="{{ asset('recursos/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+        {% endblock %}
+    </head>
+    <body>
+        {% block body %}
+
+		<!-- ======== NAVBAR SUPERIOR ======== -->
+    
+		
+			<nav class="navbar navbar-light bg-white shadow-sm sticky-top">
+				<div class="container-fluid">
+			<!-- Botón de menú móvil/mediano -->
+					<button class="btn btn-outline-primary d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
+						☰
+					</button>
+			
+					<a class="navbar-brand fw-semibold" href="#"> </a>
+
+					<!-- Perfil -->
+					{% if app.user %}
+					<div class="d-flex align-items-center">
+						<span class="me-2">{{ app.user.userIdentifier }}</span>
+						<i class="bi bi-person-circle fs-4 text-primary"></i>
+					</div>
+					{% endif %}
+					</div>
+			</nav>
+		
+	
+		<!-- ======== FIN NAVBAR SUPERIOR ======== -->
+		<!-- ======== PANEL LATERAL ======== -->	
+		
+		
+			<div class="offcanvas offcanvas-start offcanvas-lg bg-white" tabindex="-1" id="sidebarMenu">
+				<div class="offcanvas-header border-bottom">
+					<h5 class="offcanvas-title">Menú</h5>
+					<button type="button" class="btn-close d-lg-none" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+				</div>
+
+				<div class="offcanvas-body d-flex flex-column p-3">
+					<!-- Logo -->
+					<div class="text-center mb-4">
+					<img src="{{ asset('recursos/img/logo.svg') }}" alt="Logo" class="img-fluid" style="max-width: 180px;">
+					</div>
+
+					<!-- Menú -->
+					<ul class="nav flex-column">
+						<li class="nav-item">
+							<a href="{{ path('app_index') }}" class="nav-link text-dark"><i class="bi bi-house-door me-2"></i> Panel principal</a>
+						</li>
+						<li class="nav-item">
+							<a href="{{ path('app_inventario') }}" class="nav-link text-dark"><i class="bi bi-card-list me-2"></i> Inventario</a>
+						</li>
+						<li class="nav-item">
+							<a href="{{ path('app_compra') }}" class="nav-link text-dark"><i class="bi bi-clipboard2-data-fill me-2"></i> Compras</a>
+						</li>
+						<li class="nav-item">
+							<a href="{{ path('app_proveedor_index') }}" class="nav-link text-dark"><i class="bi bi-person-square me-2"></i> Proveedores</a>
+						</li>
+						<li class="nav-item">
+							<a href="{{ path('app_venta') }}" class="nav-link text-dark"><i class="bi bi-cart-check me-2"></i> Ventas</a>
+						</li>
+						<li class="nav-item">
+							<a href="{{ path('app_producto_index') }}" class="nav-link text-dark"><i class="bi bi-boxes me-2"></i> Productos</a>
+						</li>
+						<li><hr></li>
+						<li class="nav-item">
+							<a href="{{ path('app_logout') }}" class="nav-link text-danger"><i class="bi bi-box-arrow-left me-2"></i> Cerrar sesión</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+			
+			<!-- ======== FIN PANEL LATERAL ======== -->
+		
+          <!-- ======== CONTENIDO PRINCIPAL ======== -->
+		<main class="container-fluid">
+			<div class="row">
+				<!-- En pantallas grandes, deja espacio para el sidebar -->
+				<div class="col-lg-3 d-none d-lg-block"></div>
+				<div class="col-12 col-lg-9 p-4">
+				{% block contenido %}
+				{# Contenido dinámico #}
+				{% endblock %}
+				</div>
+			</div>
+		</main>
+        {% endblock %}
+		
+    </body>
+</html>
